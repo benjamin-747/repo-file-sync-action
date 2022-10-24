@@ -63,11 +63,12 @@ const run = async () => {
 				if (fileExists === false) return core.warning(`Source ${ file.source } not found`)
 
 				const localDestination = `${ git.workingDir }/${ file.dest }`
-
+				core.info(`${ localDestination }`)
 				const destExists = fs.existsSync(localDestination)
-				if (destExists === true && file.replace === false) return core.warning(`File(s) already exist(s) in destination and 'replace' option is set to false`)
-
 				const isDirectory = await pathIsDirectory(file.source)
+
+				if (destExists === true && file.replace === false && !isDirectory) return core.warning(`File(s) already exist(s) in destination and 'replace' option is set to false`)
+				
 				const source = isDirectory ? `${ addTrailingSlash(file.source) }` : file.source
 				const dest = isDirectory ? `${ addTrailingSlash(localDestination) }` : localDestination
 

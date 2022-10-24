@@ -65,19 +65,26 @@ const pathIsDirectory = async (path) => {
 
 const copy = async (src, dest, deleteOrphaned, exclude) => {
 
-	core.debug(`CP: ${ src } TO ${ dest }`)
+	core.info(`CP: ${ src } TO ${ dest }`)
 
 	const filterFunc = (file) => {
-
+		core.info(`file info		: ${file}`)
 		if (exclude !== undefined && exclude.includes(file)) {
 			core.debug(`Excluding file ${ file }`)
+			return false
+		}
+		const fileNmae = file.split('/').pop();
+		const filePath = `${dest}${fileNmae}`
+		core.info(`fileNmae		: ${fileNmae}`)
+		if (fileNmae.trim() !== '' && fs.existsSync(filePath)) {
+			core.info(`Exist file ${ file }`)
 			return false
 		}
 
 		return true
 	}
 
-	await fs.copy(src, dest, exclude !== undefined && { filter: filterFunc })
+	await fs.copy(src, dest, { filter: filterFunc })
 
 	// If it is a directory and deleteOrphaned is enabled - check if there are any files that were removed from source dir and remove them in destination dir
 	if (deleteOrphaned) {
